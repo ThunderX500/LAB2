@@ -23,15 +23,97 @@ class WebControllerTest {
     }
 
     @Test
-    fun celsiusToFahrenheitConversion() {
+    fun testAddition() {
         mockMvc.perform(
             get("/convert")
-                .param("celsius", "0")
-                .param("fahrenheit", "")
-                .param("operation", "CtoF")
+                .param("a", "10.5")
+                .param("b", "4.5")
+                .param("operation", "add")
         )
             .andExpect(status().isOk)
-            .andExpect(model().attribute("fahrenheit", "32.00"))
+            .andExpect(model().attribute("result", "15.00"))
+            .andExpect(model().attribute("error", ""))
+            .andExpect(view().name("home"))
+    }
+
+    @Test
+    fun testSubtraction() {
+        mockMvc.perform(
+            get("/convert")
+                .param("a", "20.0")
+                .param("b", "8.0")
+                .param("operation", "subtract")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attribute("result", "12.00"))
+            .andExpect(model().attribute("error", ""))
+            .andExpect(view().name("home"))
+    }
+
+    @Test
+    fun testMultiplication() {
+        mockMvc.perform(
+            get("/convert")
+                .param("a", "6.0")
+                .param("b", "7.0")
+                .param("operation", "multiply")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attribute("result", "42.00"))
+            .andExpect(model().attribute("error", ""))
+            .andExpect(view().name("home"))
+    }
+
+    @Test
+    fun testDivision() {
+        mockMvc.perform(
+            get("/convert")
+                .param("a", "10.0")
+                .param("b", "4.0")
+                .param("operation", "divide")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attribute("result", "2.50"))
+            .andExpect(model().attribute("error", ""))
+            .andExpect(view().name("home"))
+    }
+
+    @Test
+    fun testDivisionByZero() {
+        mockMvc.perform(
+            get("/convert")
+                .param("a", "10.0")
+                .param("b", "0")
+                .param("operation", "divide")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attribute("error", "DivisionByZero"))
+            .andExpect(view().name("home"))
+    }
+
+    @Test
+    fun testArithmeticFormatError() {
+        mockMvc.perform(
+            get("/convert")
+                .param("a", "invalid_number")
+                .param("b", "5")
+                .param("operation", "add")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attribute("error", "ArithmeticFormatError"))
+            .andExpect(view().name("home"))
+    }
+
+    @Test
+    fun testUnknownOperationFormatError() {
+        mockMvc.perform(
+            get("/convert")
+                .param("a", "5")
+                .param("b", "5")
+                .param("operation", "unknown_op")
+        )
+            .andExpect(status().isOk)
+            .andExpect(model().attribute("error", "OperationFormatError"))
             .andExpect(view().name("home"))
     }
 }

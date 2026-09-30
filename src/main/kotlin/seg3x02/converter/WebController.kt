@@ -14,8 +14,9 @@ class WebController {
     @ModelAttribute
     fun addAttributes(model: Model) {
         model.addAttribute("error", "")
-        model.addAttribute("celsius", "")
-        model.addAttribute("fahrenheit", "")
+        model.addAttribute("a", "")
+        model.addAttribute("b", "")
+        model.addAttribute("result", "")
     }
 
     @RequestMapping("/")
@@ -25,48 +26,63 @@ class WebController {
 
     @GetMapping("/convert")
     fun doConvert(
-        @RequestParam(value = "celsius", required = false, defaultValue = "") celsius: String,
-        @RequestParam(value = "fahrenheit", required = false, defaultValue = "") fahrenheit: String,
+        @RequestParam(value = "a", required = false, defaultValue = "") a: String,
+        @RequestParam(value = "b", required = false, defaultValue = "") b: String,
+        @RequestParam(value = "result", required = false, defaultValue = "") result: String,
         @RequestParam(value = "operation", required = false, defaultValue = "") operation: String,
         model: Model
     ): String {
+        // Retain form inputs across requests
+        model.addAttribute("a", a)
+        model.addAttribute("b", b)
+        model.addAttribute("result",result)
+
         when (operation) {
-            "CtoF" -> {
+
+            "add" -> {
                 try {
-                    val celsiusValue = celsius.toDouble()
-                    val fahrenheitValue = celsiusValue * 9 / 5 + 32
-                    model.addAttribute("celsius", celsius)
-                    model.addAttribute(
-                        "fahrenheit",
-                        String.format(Locale.US, "%.2f", fahrenheitValue)
-                    )
+                    val result = a.toDouble() + b.toDouble()
+                    model.addAttribute("result", String.format(Locale.US, "%.2f", result))
                 } catch (_: NumberFormatException) {
-                    model.addAttribute("error", "CelsiusFormatError")
-                    model.addAttribute("celsius", celsius)
-                    model.addAttribute("fahrenheit", fahrenheit)
+                    model.addAttribute("error", "ArithmeticFormatError")
                 }
             }
 
-            "FtoC" -> {
+            "subtract" -> {
                 try {
-                    val fahrenheitValue = fahrenheit.toDouble()
-                    val celsiusValue = (fahrenheitValue - 32) * 5 / 9
-                    model.addAttribute(
-                        "celsius",
-                        String.format(Locale.US, "%.2f", celsiusValue)
-                    )
-                    model.addAttribute("fahrenheit", fahrenheit)
+                    val result = a.toDouble() - b.toDouble()
+                    model.addAttribute("result", String.format(Locale.US, "%.2f", result))
                 } catch (_: NumberFormatException) {
-                    model.addAttribute("error", "FahrenheitFormatError")
-                    model.addAttribute("celsius", celsius)
-                    model.addAttribute("fahrenheit", fahrenheit)
+                    model.addAttribute("error", "ArithmeticFormatError")
+                }
+            }
+
+            "multiply" -> {
+                try {
+                    val result = a.toDouble() * b.toDouble()
+                    model.addAttribute("result", String.format(Locale.US, "%.2f", result))
+                } catch (_: NumberFormatException) {
+                    model.addAttribute("error", "ArithmeticFormatError")
+                }
+            }
+
+            "divide" -> {
+                try {
+                    val valA = a.toDouble()
+                    val valB = b.toDouble()
+                    if (valB == 0.0) {
+                        model.addAttribute("error", "DivisionByZero")
+                    } else {
+                        val result = valA / valB
+                        model.addAttribute("result", String.format(Locale.US, "%.2f", result))
+                    }
+                } catch (_: NumberFormatException) {
+                    model.addAttribute("error", "ArithmeticFormatError")
                 }
             }
 
             else -> {
                 model.addAttribute("error", "OperationFormatError")
-                model.addAttribute("celsius", celsius)
-                model.addAttribute("fahrenheit", fahrenheit)
             }
         }
 
